@@ -20,7 +20,6 @@
 ## 📝 Table of Contents
 
 - [Dependencies / Limitations](#limitations)
-- [Future Scope](#future_scope)
 - [Setting up a local environment](#getting_started)
 - [Usage](#usage)
 - [Technology Stack](#tech_stack)
@@ -30,11 +29,6 @@
 - the program is based on the python-telegram-bot repository
 
 <a href="https://github.com/python-telegram-bot/python-telegram-bot"></a>
-
-## 🚀 Future Scope <a name = "future_scope"></a>
-
-Write about what you could not develop during the course of the Hackathon; and about what your project can achieve
-in the future.
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
@@ -70,7 +64,12 @@ diskxo@main:~$ pip install pyTelegramBotAPI
 
 ## 🎈 Usage <a name="usage"></a>
 
-Add notes about how to use the system.
+Available commands:
+- /start : Start the bot
+- /help : Get the list of commands
+- /settings : Set default download extension(.mp3, .mp4)
+   /mp3
+   /mp4
 
 ## ⛏️ Built With <a name = "tech_stack"></a>
 
