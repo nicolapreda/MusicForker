@@ -68,8 +68,8 @@ Available commands:
 - /start : Start the bot
 - /help : Get the list of commands
 - /settings : Set default download extension(.mp3, .mp4)
-   /mp3
-   /mp4
+  - /mp3
+  - /mp4
 
 ## ⛏️ Built With <a name = "tech_stack"></a>
 
