@@ -12,10 +12,15 @@ import os
 import sys
 #Telegram Bot
 import telebot
+from telegram.ext import Updater
+from telegram.ext import CommandHandler
+#Get user settings
+import json
 
 #Telegram bot start
 API_TOKEN = ""
 bot = telebot.TeleBot(API_TOKEN)
+
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -33,20 +38,48 @@ def send_welcome(message):
 
 
 @bot.message_handler(commands=['mp4'])
-def send_welcome(message):
+def mp4setting(message):
+    def WritetoJSONFile(path, filename, data):
+        filePathNameWExt = './' + filename
+        with open(filePathNameWExt, 'w') as fp:
+           json.dump(data, fp)
+
+    filename = 'users.json'
+    userid = message.chat.id;
+
+    data = {}
+    data['setting'] = 'mp4'
+    data['userid'] = userid
+
+    WritetoJSONFile('./',filename, data)
+
     bot.reply_to(message, "I prossimi file verranno scaricati in formato mp4!")
-    convertformat = 'mp4'
-    return convertformat
+    print("Added 1 user preference to users.json")
+
 @bot.message_handler(commands=['mp3'])
-def send_welcome(message):
+def mp3setting(message):
+
+    def WritetoJSONFile(path, filename, data):
+        filePathNameWExt = './' + filename
+        with open(filePathNameWExt, 'w') as fp:
+            json.dump(data, fp)
+
+    filename = 'users.json'
+    userid = message.chat.id;
+
+    data = {}
+    data['setting'] = 'mp3'
+    data['userid'] = userid
+
+    WritetoJSONFile('./',filename, data)
+
     bot.reply_to(message, "I prossimi file verranno scaricati in formato mp3!")
-    convertformat = 'mp3'
-    return convertformat
+    print("Added 1 user preference to users.json")
 
 #Download video/audio
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    convertformat = 'mp3'
+
     originalmessage = message.text
     #Replace spaces with -
     inputelement = originalmessage.replace(" ", "-")
@@ -117,10 +150,8 @@ def echo_message(message):
 
 
 print("Bot Online!\nListening...")
-try:
-    bot.polling()
-except:
-    print("Bot crashed\nRestarting...")
-    os.system('python bot_main.py')
+bot.polling()
+#print("Bot crashed\nRestarting...")
+#os.system('python bot_main.py')
 
 
