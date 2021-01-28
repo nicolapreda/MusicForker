@@ -1,5 +1,8 @@
 #Get Youtube html
 import urllib.request
+from urllib.request import Request, urlopen
+import lxml.html as LH
+
 #Find all youtube IDs
 import re
 import requests
@@ -86,6 +89,7 @@ def echo_message(message):
 
     directlink = inputelement.startswith("https://")
 
+
     if directlink == True:
         #Print loading
         bot.reply_to(message, 'Ricerca del video... (10%)')
@@ -125,19 +129,32 @@ def echo_message(message):
 
         bot.reply_to(message, 'Download del video:\n' + complete_link)
         bot.reply_to(message, '30%')
-        ydl_opts = {
-        'format': 'bestaudio/best',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': convertformat,
-            'preferredquality': '192',
-        }],
-        }
+
+        #Get user preferences
+        #Get user ID
+        iduser = message.chat.id;
+        #Open JSON file
+        data = json.loads(open("users.json").read())
+
+        if data["userid"] == iduser:
+            if data["setting"] == "mp3":
+                ydl_opts = {
+                'format':"bestaudio/best",
+                    'postprocessors': [{
+                        'key': 'FFmpegExtractAudio',
+                        'preferredcodec': "mp3",
+                        'preferredquality': '192',
+                    }],
+                }
+            else:
+                ydl_opts = {
+                'format':"137"
+                }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([complete_link]) #Download the video
         bot.reply_to(message, 'Conversione e upload del video... (70%)')
 
-        mp3_file = glob.glob("*.mp3")  #consider only files with .mp3 extension
+        mp3_file = glob.glob("*.mp3" or "*.mp4")  #consider only files with .mp3 extension
         newest_file = max(mp3_file, key=os.path.getctime)  #get the last file
         file_title = os.path.splitext(newest_file)[0] #get the title of file
         audio = open(file_title + '.mp3', 'rb')

@@ -23,20 +23,15 @@ from telegram.ext import Updater
 from telegram.ext import CommandHandler
 #Get user settings
 import json
-session = HTMLSession()
-header = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36' }
+from fake_useragent import UserAgent
+
+
+ua = UserAgent()
+
+header = {'User-Agent':str(ua.chrome)}
 ytmreq = Request("https://music.youtube.com/watch?v=I5V7igjZlVI&list=RDAMVMI5V7igjZlVI",headers=header)
 webpage1 = urlopen(ytmreq).read().decode()
-searchname = re.compile('<img id="img" class="style-scope yt-img-shadow" alt="">', re.IGNORECASE | re.DOTALL)
-copertina = re.findall(searchname, ytmreq)
-
-dreamsub_list = []
-for i in copertina:
-    k = i.replace(' ','-')
-    dreamsub_list.append(k)
-
-    #Show all watched anime
-print(dreamsub_list)
-
-
-
+print(webpage1)
+searchname = re.compile('<img id="img" class="style-scope yt-img-shadow" alt="" width="1048" src="https://lh3.googleusercontent.com/C1kJNdZQdjxxXJzUTrvd2w0YQGkCf1yxPWMy8IuMyxzSQJPBax6qcYkS2XSc0gs8u_WLuix0d6IJqiHF=w544-h544-l90-rj">', re.IGNORECASE | re.DOTALL )
+copertina = re.findall(searchname, webpage1)
+print(copertina)
