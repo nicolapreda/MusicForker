@@ -8,6 +8,7 @@ import re
 import requests
 #Download and convert YT video
 import youtube_dl
+import time
 #Get last song downloaded / delete last song/video
 import shutil
 import glob
@@ -20,23 +21,21 @@ from telegram.ext import CommandHandler
 #Get user settings
 import json
 
-#Telegram bot start
-API_TOKEN = ""
-bot = telebot.TeleBot(API_TOKEN)
+# Telegram bot start
+# Get the token in "token.json"
+token = json.loads(open("token.json").read())
+# Load bot with token
+bot = telebot.TeleBot(token['token'])
 
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
 	bot.reply_to(message, "Benvenuto nel bot! Controlla /help per tutti i comandi a tua disposizione.\nInserisci il nome o l'url del video da scaricare:")
+
 #Help commands
 
 @bot.message_handler(commands=['help'])
-def send_welcome(message):
-	bot.reply_to(message, "/impostazioni : Configurazione del bot\n")
-
-#Settings
-@bot.message_handler(commands=['impostazioni'])
-def send_welcome(message):
+def helpcommand(message):
 	bot.reply_to(message, "/mp3 : I prossimi file verranno scaricati in formato mp3\n/mp4 : I prossimi file verranno scaricati in formato mp4")
 
 
@@ -147,22 +146,37 @@ def echo_message(message):
                     }],
                 }
             else:
-                ydl_opts = {
-                'format':"137"
-                }
+                ydl_opts = { }
+
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([complete_link]) #Download the video
-        bot.reply_to(message, 'Conversione e upload del video... (70%)')
+            meta = ydl.extract_info(complete_link)
+            file_title = meta['title'] #get the title of file
+            print(file_title)
+            bot.reply_to(message, 'Conversione e upload del video... (70%)')
 
-        mp3_file = glob.glob("*.mp3" or "*.mp4")  #consider only files with .mp3 extension
-        newest_file = max(mp3_file, key=os.path.getctime)  #get the last file
-        file_title = os.path.splitext(newest_file)[0] #get the title of file
-        audio = open(file_title + '.mp3', 'rb')
-        bot.send_audio(message.chat.id, audio)
+        if data["userid"] == iduser:
+            if data["setting"] == "mp3":
+                mp3_file = glob.glob("*.mp3")  #consider only files with .mp3 extension
+                newest_file = max(mp3_file, key=os.path.getctime)  #get the last file
+                os.rename(r"" + newest_file ,r"" + file_title + '.mp3') #Rename the file with real music title
+                audio = open(file_title + '.mp3', 'rb')
+                bot.send_audio(message.chat.id, audio)
+            else:
+                mp4_file = glob.glob("*.mp4")  #consider only files with .mp3 extension
+                newest_file = max(mp4_file, key=os.path.getctime)  #get the last file
+                file_title = os.path.splitext(newest_file)[0] #get the title of file
+                video = open(file_title + '.mp4', 'rb')
+                bot.send_video(message.chat.id, video)
 
         #Delete last song / video downloaded
-        audio.close()
-        os.remove(file_title + '.mp3')
+        if data["setting"] == "mp3":
+            audio.close()
+            os.remove(file_title + '.mp3')
+        else:
+            video.close()
+            os.remove(file_title + '.mp4')
+
         print("Last file: " + file_title + " Deleted!")
 
 
