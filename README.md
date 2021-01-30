@@ -67,9 +67,8 @@ diskxo@main:~$ pip install pyTelegramBotAPI
 Available commands:
 - /start : Start the bot
 - /help : Get the list of commands
-- /settings : Set default download extension(.mp3, .mp4)
-  - /mp3
-  - /mp4
+- /mp3 : Set default download extension to .mp3
+- /mp4 : Set default download extension to .mp4
 
 ## ⛏️ Built With <a name = "tech_stack"></a>
 
