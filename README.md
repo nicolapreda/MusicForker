@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img src="https://i.imgur.com/ZHz6v6N.jpg" alt="Project logo"></a>
+ <img src="https://i.imgur.com/4vrqCHq.png" alt="MusicForker Logo"></a>
 </p>
 <h3 align="center">MusicForker</h3>
 <div align="center">
