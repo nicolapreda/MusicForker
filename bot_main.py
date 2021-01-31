@@ -97,6 +97,9 @@ def echo_message(message):
 
 
     if directlink == True:
+        if inputelement.startswith("https://music.youtube.com"):
+            inputelement.replace("&list=", "")
+            print(inputelement)
         #Print loading
         bot.reply_to(message, '⚙️Download del video:\n' + inputelement + ' ...(30%)')
 
@@ -181,11 +184,13 @@ def echo_message(message):
         complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   #Get the complete YT link
 
         bot.reply_to(message, '⚙️Download del video:\n' + complete_link)
-        bot.reply_to(message, '30%')
 
+        # Print loading message
+        loadingmessage = bot.reply_to(message, '⚙️Download del video...')
+        messageid = loadingmessage.message_id
         #Get user preferences
         #Get user ID
-        iduser = message.chat.id;
+        iduser = message.chat.id
         #Open JSON file
         data = json.loads(open("users.json").read())
 
@@ -221,21 +226,32 @@ def echo_message(message):
             file_title = meta['title']
             #Get file author
             file_author = meta['uploader']
-            bot.reply_to(message, 'Conversione e upload del video... (70%)')
+            bot.edit_message_text("⚙️Conversione e upload del video... (70%)",iduser, messageid)
 
         if data["userid"] == iduser:
             if data["setting"] == "mp3":
                 mp3_file = glob.glob("*.mp3")  #consider only files with .mp3 extension
                 newest_file = max(mp3_file, key=os.path.getctime)  #get the last file
-                os.rename(r"" + newest_file ,r"" + file_title + '.mp3') #Rename the file with real music title
-                #Insert audio metadata
-                audio = EasyID3(file_title + ".mp3")
-                audio['artist'] = file_author
-                audio.save()
-                audio = open(file_title + '.mp3', 'rb')
-                bot.send_audio(message.chat.id, audio)
+                try:
+                    os.rename(r"" + newest_file ,r"" + file_title + '.mp3') #Rename the file with real music title
+                    #Insert audio metadata
+                    audio = EasyID3(file_title + ".mp3")
+                    audio['artist'] = file_author
+                    audio['title'] = file_title
+                    audio.save()
+                    audio = open(file_title + '.mp3', 'rb')
+                    bot.send_audio(message.chat.id, audio)
+
+                except:
+                    print("Rename failed, sending original filename")
+                    #Insert audio metadata
+                    audio = EasyID3(file_title + ".mp3")
+                    audio['artist'] = file_author
+                    audio.save()
+                    audio = open(newest_file + '.mp3', 'rb')
+                    bot.send_audio(message.chat.id, audio)
             else:
-                # Consider only files with .mp3 extension
+                # Consider only files with .mp4 extension
                 mp4_file = glob.glob("*.mp4")
                 # Get the last mp4 file
                 newest_file = max(mp4_file, key=os.path.getctime)
@@ -253,7 +269,7 @@ def echo_message(message):
             video.close()
             os.remove(file_title + '.mp4')
 
-        print("Last file: " + file_title + " Deleted!")
+        print("Last file: " + file_title + " Deleted!\n")
 
 
 print("Bot Online!\nListening...")
