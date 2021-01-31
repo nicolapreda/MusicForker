@@ -1,6 +1,6 @@
 <p align="center">
   <a href="" rel="noopener">
- <img src="https://i.imgur.com/ZHz6v6N.jpg" alt="Project logo"></a>
+ <img src="https://i.imgur.com/4vrqCHq.png" alt="MusicForker Logo"></a>
 </p>
 <h3 align="center">MusicForker</h3>
 <div align="center">
@@ -67,9 +67,8 @@ diskxo@main:~$ pip install pyTelegramBotAPI
 Available commands:
 - /start : Start the bot
 - /help : Get the list of commands
-- /settings : Set default download extension(.mp3, .mp4)
-  - /mp3
-  - /mp4
+- /mp3 : Set default download extension to .mp3
+- /mp4 : Set default download extension to .mp4
 
 ## ⛏️ Built With <a name = "tech_stack"></a>
 
