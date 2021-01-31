@@ -183,10 +183,10 @@ def echo_message(message):
         #Find video link
         complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   #Get the complete YT link
 
-        bot.reply_to(message, '⚙️Download del video:\n' + complete_link)
+        bot.reply_to(message, '🚀Corrispondenza migliore:\n' + complete_link)
 
         # Print loading message
-        loadingmessage = bot.reply_to(message, '⚙️Download del video...')
+        loadingmessage = bot.reply_to(message, '⚙️(30%)Download del video...')
         messageid = loadingmessage.message_id
         #Get user preferences
         #Get user ID
@@ -206,7 +206,7 @@ def echo_message(message):
                 }
             else:
                 ydl_opts = {
-                'format': 'bestvideo[ext=mp4]+bestaudio/best'
+                'format': 'bestvideo[ext=m4a]+bestaudio/best'
                 }
         else:
             ydl_opts = {
@@ -226,7 +226,7 @@ def echo_message(message):
             file_title = meta['title']
             #Get file author
             file_author = meta['uploader']
-            bot.edit_message_text("⚙️Conversione e upload del video... (70%)",iduser, messageid)
+            bot.edit_message_text("⚙️(70%)Conversione e upload...",iduser, messageid)
 
         if data["userid"] == iduser:
             if data["setting"] == "mp3":
@@ -239,6 +239,7 @@ def echo_message(message):
                     audio['artist'] = file_author
                     audio['title'] = file_title
                     audio.save()
+                    bot.edit_message_text("⚙️(90%)Aggiungendo gli ultimi dettagli...",iduser, messageid)
                     audio = open(file_title + '.mp3', 'rb')
                     bot.send_audio(message.chat.id, audio)
 
@@ -251,12 +252,15 @@ def echo_message(message):
                     audio = open(newest_file + '.mp3', 'rb')
                     bot.send_audio(message.chat.id, audio)
             else:
+                # Loading message on Telegram bot
+                bot.edit_message_text("⚙️(90%)Aggiungendo gli ultimi dettagli...",iduser, messageid)
                 # Consider only files with .mp4 extension
                 mp4_file = glob.glob("*.mp4")
                 # Get the last mp4 file
                 newest_file = max(mp4_file, key=os.path.getctime)
-                # Get the title of file
-                file_title = os.path.splitext(newest_file)[0]
+                #Rename the file with real music title
+                os.rename(r"" + newest_file ,r"" + file_title + '.mp4') 
+
                 # Open & send .mp4 file
                 video = open(file_title + '.mp4', 'rb')
                 bot.send_video(message.chat.id, video)
