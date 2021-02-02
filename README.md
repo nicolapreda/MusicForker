@@ -60,6 +60,7 @@ diskxo@main:~$ pip install youtube_dl
 diskxo@main:~$ pip install pytest-shutil
 diskxo@main:~$ pip install glob2
 diskxo@main:~$ pip install pyTelegramBotAPI
+diskxo@main:~$ pip install mutagen
 ```
 
 ## 🎈 Usage <a name="usage"></a>
