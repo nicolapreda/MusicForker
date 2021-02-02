@@ -46,20 +46,16 @@ def helpcommand(message):
 	bot.reply_to(message, "/mp3 : I prossimi file verranno scaricati in formato mp3\n/mp4 : I prossimi file verranno scaricati in formato mp4")
 
 
+def WritetoJSONFile(path, filename, data):
+        filePathNameWExt = './' + filename
+        with open(filePathNameWExt, 'w') as fp:
+           json.dump(data, fp)
+data = {}           
 @bot.message_handler(commands=['mp4'])
 def mp4setting(message):
-    def WritetoJSONFile(path, filename, data):
-        filePathNameWExt = './' + filename
-        with open(filePathNameWExt, 'a') as fp:
-           json.dump(data, fp)
-
     filename = 'users.json'
     userid = message.chat.id;
-    data = {
-        userid:{
-            'format': 'mp4'
-        }
-    }
+    data[userid] = {'format': 'mp4'}
     WritetoJSONFile('./',filename, data)
 
     bot.reply_to(message, "I prossimi file verranno scaricati in formato mp4!")
@@ -67,23 +63,9 @@ def mp4setting(message):
 
 @bot.message_handler(commands=['mp3'])
 def mp3setting(message):
-
-    def WritetoJSONFile(path, filename, data):
-        filePathNameWExt = './' + filename
-        with open(filePathNameWExt, 'a') as fp:
-            json.dump(data, fp)
-
     filename = 'users.json'
     userid = message.chat.id;
-    data = {}
-    usersdata = json.loads(filename)
-
-    data = {
-        userid:{
-            'format': 'mp3'
-        }
-    }
-
+    data[userid] = {'format': 'mp3'}
     WritetoJSONFile('./',filename, data)
 
     bot.reply_to(message, "I prossimi file verranno scaricati in formato mp3!")
