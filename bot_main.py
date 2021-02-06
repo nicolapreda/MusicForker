@@ -16,6 +16,8 @@ import os
 import sys
 #Telegram Bot
 import telebot
+from telegram.ext import Updater, InlineQueryHandler, CommandHandler
+
 #Get user settings
 import json
 #Insert song details
@@ -52,30 +54,34 @@ data = {}
 @bot.message_handler(commands=['mp4'])
 def mp4setting(message):
     filename = 'users.json'
-    userid = message.chat.id;
+    userid = str(message.chat.id)
     data[userid] = {'format': 'mp4'}
     WritetoJSONFile('./',filename, data)
 
-    bot.reply_to(message, "I prossimi file verranno scaricati in formato mp4!")
+    bot.reply_to(message, "⚠️ I prossimi file verranno scaricati in formato mp4! ⚠️")
     print("Added 1 user preference to users.json")
 
 @bot.message_handler(commands=['mp3'])
 def mp3setting(message):
     filename = 'users.json'
-    userid = message.chat.id;
+    userid = str(message.chat.id)
     data[userid] = {'format': 'mp3'}
     WritetoJSONFile('./',filename, data)
 
-    bot.reply_to(message, "I prossimi file verranno scaricati in formato mp3!")
+    bot.reply_to(message, "⚠️ I prossimi file verranno scaricati in formato mp3! ⚠️")
     print("Added 1 user preference to users.json")
 
 #Download video/audio
 @bot.message_handler(func=lambda message: True)
 def echo_message(message):
-    
-    with open('users.json', 'r') as j:
-        contents = json.loads(j.read())
-
+    try:
+        data = json.loads(open("users.json").read())
+    except:
+        bot.reply_to(message, "❌ Errore interno del bot (LoadJSON Failed) ❌")
+        sys.exit()
+        os.system("python bot_main.py")
+        
+        
     originalmessage = message.text
     #Replace spaces with -
     inputelement = originalmessage.replace(" ", "-")
@@ -167,96 +173,125 @@ def echo_message(message):
         #Find video link
         complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   #Get the complete YT link
 
-        bot.reply_to(message, '🚀Corrispondenza migliore:\n' + complete_link)
+        bot.reply_to(message, '🚀 Corrispondenza migliore:\n' + complete_link)
 
-        # Print loading message
-        
-
-        #Get user ID
-        userid = int(message.chat.id)
-        #if userid in contents:
-        loadingmessage = bot.reply_to(message, '⚙️(30%) Download in corso...')
-        messageid = loadingmessage.message_id
-        if contents[userid]['format' : 'mp3'] in contents:
-            ydl_opts = {
-            'format':"bestaudio/best",
-                    'postprocessors': [{
-                        'key': 'FFmpegExtractAudio',
-                        'preferredcodec': "mp3",
-                        'preferredquality': '192',
-                    }],
-                }
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                #Download the video
-                ydl.download([complete_link])
-                meta = ydl.extract_info(complete_link)
-                #Get file title
-                file_title = meta['title']
-                #Get file author
-                file_author = meta['uploader']
-                bot.edit_message_text("⚙️(50%) Conversione e upload...",iduser, messageid)
-                
-            mp3_file = glob.glob("*.mp3")  #consider only files with .mp3 extension
-            newest_file = max(mp3_file, key=os.path.getctime)  #get the last file
+        def download():
             try:
-                os.rename(r"" + newest_file ,r"" + file_title + '.mp3') #Rename the file with real music title
-                #Insert audio metadata
-                audio = EasyID3(file_title + ".mp3")
-                audio['artist'] = file_author
-                audio['title'] = file_title
-                audio.save()
-                bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid)
-                audio = open(file_title + '.mp3', 'rb')
-                bot.send_audio(message.chat.id, audio)
+                loadingmessage = bot.reply_to(message, '⚙️(30%) Download in corso...')            
+                #Get user ID
+                userid = str(message.chat.id)
+                #Get message ID
+                messageid = loadingmessage.message_id
+                iduser = message.chat.id           
+                    
+                if (data[userid]["format"]) == "mp3":
+                    ydl_opts = {
+                    'format':"bestaudio/best",
+                            'postprocessors': [{
+                                'key': 'FFmpegExtractAudio',
+                                'preferredcodec': "mp3",
+                                'preferredquality': '192',
+                            }],
+                        }
+                    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                        
+                        ydl.download([complete_link]) #Download the video
+                        meta = ydl.extract_info(complete_link) # Extract link informations
+                        
+                        file_title = meta['title'] # Get file title
+                        
+                        file_author = meta['uploader'] # Get file author
+                        bot.edit_message_text("⚙️(50%) Conversione e upload...",iduser, messageid)
+                            
+                    mp3_file = glob.glob("*.mp3")  #Consider only files with .mp3 extension
+                    newest_file = max(mp3_file, key=os.path.getctime)  # Get the last file
+                    
+                    try:
+                        os.rename(r"" + newest_file ,r"" + file_title + '.mp3') # Rename the file with real music title
+                        
+                        audio = EasyID3(file_title + ".mp3") # Insert audio metadata
+                        audio['artist'] = file_author
+                        audio['title'] = file_title
+                        
+                        audio.save() # Save audio metadata
+                        bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid)
+                        
+                        audio = open(file_title + '.mp3', 'rb') # Open & send song
+                        bot.send_audio(message.chat.id, audio)
 
+                    except:
+                        print("❌ Rename failed, sending original filename ❌")
+                        
+                        audio = EasyID3(newest_file) # Audio metadata
+                        audio['artist'] = file_author
+                        audio['title'] = file_title
+                        
+                        audio.save() # Save audio metadata
+                        bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid) # Details tg message
+                        
+                        audio = open(newest_file, 'rb') #Send song
+                        bot.send_audio(message.chat.id, audio)
+                                
+                        audio.close() # Close audio file
+                        os.remove(newest_file) # Remove audio file
+                        print("Last file: " + newest_file + " Deleted!\n") # Print removed file
+                            
+                elif (data[userid]["format"]) == "mp4":
+                    try:
+                        ydl_opts = {
+                        'format': 'bestvideo[ext=m4a]+bestaudio/best'
+                        }
+                        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                            #Download the video
+                            ydl.download([complete_link])
+                            meta = ydl.extract_info(complete_link)
+                            #Get file title
+                            file_title = meta['title']
+                            #Get file author
+                            file_author = meta['uploader']
+                        try:            
+                        
+                            bot.edit_message_text("⚙️ (70%) Conversione e upload del video...",iduser, messageid) # Loading message on Telegram bot
+                            
+                            mp4_file = glob.glob("*.mp4") # Consider only files with .mp4 extension
+                            newest_file = max(mp4_file, key=os.path.getctime) # Get the last mp4 file
+                            os.rename(r"" + newest_file ,r"" + file_title + '.mp4') #Rename the file with real music title
+                            
+                            video = open(file_title + '.mp4', 'rb') # Open & send .mp4 file
+                            bot.send_video(message.chat.id, video)
+                                    
+                            video.close()
+                            os.remove(file_title + '.mp4')
+
+                            print("Last file: " + file_title + " Deleted!\n")
+                        except:
+                            print("❌ Rename failed, sending original filename ❌")
+                            
+                            audio = EasyID3(newest_file) # Audio metadata
+                            audio['artist'] = file_author
+                            audio['title'] = file_title
+                            
+                            audio.save() # Save audio metadata
+                            bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid) # Details tg message
+                            
+                            audio = open(newest_file, 'rb') #Send song
+                            bot.send_audio(message.chat.id, audio)
+                                    
+                            audio.close() # Close audio file
+                            os.remove(newest_file) # Remove audio file
+                            print("Last file: " + newest_file + " Deleted!\n") # Print removed file
+                    except: 
+                        bot.edit_message_text("❌ Errore nel download del file video!",iduser, messageid) # Error message TG
             except:
-                print("Rename failed, sending original filename")
-                bot.edit_message_text("❌(0%) Errore di caricamento! Riprovare il download",iduser, messageid)
-                #Insert audio metadata
-                audio = EasyID3(file_title + ".mp3")
-                audio['artist'] = file_author
-                audio.save()
-                audio = open(newest_file + '.mp3', 'rb')
-                bot.send_audio(message.chat.id, audio)
-                    
-            audio.close()
-            os.remove(file_title + '.mp3')
-            print("Last file: " + file_title + " Deleted!\n")
-                    
-        elif contents[userid]['format': 'mp4'] in contents:
-            ydl_opts = {
-            'format': 'bestvideo[ext=m4a]+bestaudio/best'
-            }
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                #Download the video
-                ydl.download([complete_link])
-                meta = ydl.extract_info(complete_link)
-                #Get file title
-                file_title = meta['title']
-                #Get file author
-                file_author = meta['uploader']
-                bot.edit_message_text("⚙️(50%) Conversione e upload...",iduser, messageid)
-                    
-            # Loading message on Telegram bot
-            bot.edit_message_text("⚙️(90%) Aggiungendo gli ultimi dettagli...",iduser, messageid)
-            # Consider only files with .mp4 extension
-            mp4_file = glob.glob("*.mp4")
-            # Get the last mp4 file
-            newest_file = max(mp4_file, key=os.path.getctime)
-            #Rename the file with real music title
-            os.rename(r"" + newest_file ,r"" + file_title + '.mp4') 
-
-            # Open & send .mp4 file
-            video = open(file_title + '.mp4', 'rb')
-            bot.send_video(message.chat.id, video)
+                filename = 'users.json'
+                userid = str(message.chat.id)
+                data[userid] = {'format': 'mp3'}
+                WritetoJSONFile('./',filename, data)
+                bot.reply_to(message, "⚠️ Download del file con estensione di default: .mp3\nPer scegliere con quale formato scaricare i prossimi link, usare /mp3 o /mp4 . ⚠️")
+                print("⚠️ Default config setting for the user: " + userid + " ⚠️")
+                download()
                 
-            video.close()
-            os.remove(file_title + '.mp4')
+    download()
 
-            print("Last file: " + file_title + " Deleted!\n")
-    #else:
-     #   bot.reply_to(message, "Dovresti prima decidere se scaricare in /mp3 o /mp4")
-
-
-print("Bot Online!\nListening...")
+print("Bot Online! 🚀")
 bot.polling()
