@@ -35,7 +35,7 @@ token = json.loads(open("token.json").read())
 bot = telebot.TeleBot(token['token'])
 
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start']) # Start command
 def send_welcome(message):
 	
     filename = 'users.json' 
@@ -46,17 +46,18 @@ def send_welcome(message):
     
     bot.reply_to(message, "👋 Benvenuto nel bot! Ora tutti i contenuti che scaricherai saranno impostati di default con l'estensione .mp3\n🙋 Controlla /help per tutti i comandi a tua disposizione. \n✍️ Inserisci il nome o l'url del video da scaricare:")  #Help commands
 
-@bot.message_handler(commands=['help'])
+@bot.message_handler(commands=['help']) # Help command
 def helpcommand(message):
 	bot.reply_to(message, "/mp3 : I prossimi file verranno scaricati in formato mp3\n/mp4 : I prossimi file verranno scaricati in formato mp4")
 
 
-def WritetoJSONFile(path, filename, data):
+def WritetoJSONFile(path, filename, data):  # Access JSON
         filePathNameWExt = './' + filename
         with open(filePathNameWExt, 'w') as fp:
            json.dump(data, fp)
-data = {}           
-@bot.message_handler(commands=['mp4'])
+data = {} # Declare data
+           
+@bot.message_handler(commands=['mp4']) # Download msuic in .mp4 extension
 def mp4setting(message):
     filename = 'users.json'
     userid = str(message.chat.id)
@@ -66,7 +67,7 @@ def mp4setting(message):
     bot.reply_to(message, "⚠️ I prossimi file verranno scaricati in formato mp4! ⚠️")
     print("Added 1 user preference to users.json")
 
-@bot.message_handler(commands=['mp3'])
+@bot.message_handler(commands=['mp3']) # Download msuic in .mp3 extension
 def mp3setting(message):
     filename = 'users.json'
     userid = str(message.chat.id)
@@ -74,6 +75,26 @@ def mp3setting(message):
     WritetoJSONFile('./',filename, data)
 
     bot.reply_to(message, "⚠️ I prossimi file verranno scaricati in formato mp3! ⚠️")
+    print("Added 1 user preference to users.json")
+    
+@bot.message_handler(commands=['yt']) # Download video/audio from Youtube
+def mp3setting(message):
+    filename = 'users.json'
+    userid = str(message.chat.id)
+    data[userid] = {'basewebsite': 'yt'}
+    WritetoJSONFile('./',filename, data)
+
+    bot.reply_to(message, "⚠️ I prossimi file verranno scaricati da YouTube! ⚠️")
+    print("Added 1 user preference to users.json")
+    
+@bot.message_handler(commands=['ytm'])  # Download video/audio from Youtube Music
+def mp3setting(message):
+    filename = 'users.json'
+    userid = str(message.chat.id)
+    data[userid] = {'basewebsite': 'ytm'}
+    WritetoJSONFile('./',filename, data)
+
+    bot.reply_to(message, "⚠️ I prossimi file verranno scaricati da YouTube Music! ⚠️")
     print("Added 1 user preference to users.json")
 
 #Download video/audio
@@ -178,7 +199,7 @@ def echo_message(message):
                             #Get file author
                             file_author = meta['uploader']
                         try:            
-                        
+                            
                             bot.edit_message_text("⚙️ (70%) Conversione e upload del video...",iduser, messageid) # Loading message on Telegram bot
                             
                             mp4_file = glob.glob("*.mp4") # Consider only files with .mp4 extension
