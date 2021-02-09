@@ -54,7 +54,7 @@ def mp4setting(message):
     try:
         if (data[userid]["basewebsite"]) == "yt":
             data[userid] = {"format" : "mp4", "basewebsite": "yt"}
-        elif (data[userid]["format"]) == "ytm":
+        elif (data[userid]["basewebsite"]) == "ytm":
             data[userid] = {"format" : "mp4", "basewebsite": "ytm"}
         WritetoJSONFile('./',filename, data)
     except:
@@ -71,7 +71,7 @@ def mp3setting(message):
     try:
         if (data[userid]["basewebsite"]) == "yt":
             data[userid] = {"format" : "mp3", "basewebsite": "yt"}
-        elif (data[userid]["format"]) == "ytm":
+        elif (data[userid]["basewebsite"]) == "ytm":
             data[userid] = {"format" : "mp3", "basewebsite": "ytm"}
         WritetoJSONFile('./',filename, data)
     except:
