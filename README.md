@@ -61,6 +61,9 @@ diskxo@main:~$ pip install pytest-shutil
 diskxo@main:~$ pip install glob2
 diskxo@main:~$ pip install pyTelegramBotAPI
 diskxo@main:~$ pip install mutagen
+diskxo@main:~$ pip install lxml
+diskxo@main:~$ pip install python-telegram-bot
+diskxo@main:~$ pip install numpy
 ```
 
 ## 🎈 Usage <a name="usage"></a>
@@ -70,7 +73,8 @@ Available commands:
 - /help : Get the list of commands
 - /mp3 : Set default download extension to .mp3
 - /mp4 : Set default download extension to .mp4
-
+- /yt : Download any video/music from YouTube
+- /ytm : Download any video/music from YouTube Music
 ## ⛏️ Built With <a name = "tech_stack"></a>
 
 - [Python](https://www.python.org/) - Main programming language
