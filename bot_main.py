@@ -17,6 +17,7 @@ from mutagen.easyid3 import EasyID3
 import mutagen.id3
 from mutagen.id3 import ID3, TIT2, TIT3, TALB, TPE1, TRCK, TYER
 import numpy as np
+import ytm #Get Youtube Music Link
 
 
 # Telegram bot start
@@ -64,7 +65,7 @@ def mp4setting(message):
     bot.reply_to(message, "⚠️ I prossimi file verranno scaricati in formato mp4! ⚠️")
     print("⚠️ Edited configuration for the user: " + userid + " ⚠️")
 
-@bot.message_handler(commands=['mp3']) # Download msuic in .mp3 extension
+@bot.message_handler(commands=['mp3']) # Download music in .mp3 extension
 def mp3setting(message):
     filename = 'users.json'
     userid = str(message.chat.id)
@@ -117,10 +118,12 @@ def ytmsetting(message):
 
 #---/Commands/---#
 
-
 @bot.message_handler(func=lambda message: True) # Download video/audio
 def echo_message(message):
-            
+    userid = str(message.chat.id) #Get user ID                               
+    iduser = message.chat.id # Get message ID       
+                                 
+
     try: # Try to open JSON file
         data = json.loads(open("users.json").read())
     except:
@@ -136,9 +139,6 @@ def echo_message(message):
                     downloadlink.replace("&list=", "")
                     print(downloadlink)
                     
-                userid = str(message.chat.id) #Get user ID                               
-                iduser = message.chat.id # Get message ID       
-                                 
                 loadingmessage = bot.reply_to(message, '⚙️(30%) Download in corso...') # Print loading         
                 messageid = loadingmessage.message_id
             
@@ -254,12 +254,21 @@ def echo_message(message):
         download(directlink) # Download with var "directlink"
 
     if directlink == False:
-        #Get html page of youtube
-        html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
-        video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
+        if (data[userid]["basewebsite"]) == "yt":
+            #Get html page of youtube
+            html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
+            video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
+            complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
+        elif (data[iduser]["basewebsite"]) == "ytm":
 
-        #Find video link
-        complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
+            youtubemusic = ytm.YouTubeMusic()
+            def song_url(song_id: str) -> str:
+                return ytm.utils.url_ytm('watch', params = {'v': song_id})
+            def search(query: str) -> str:
+                return song_url(youtubemusic.search_songs(query)['items'][0]['id'])
+            complete_link = search(inputelement)
+            print(complete_link)
+            
         bot.reply_to(message, '🚀 Corrispondenza migliore:\n' + complete_link) # Print the video/music link
         download(complete_link) # Download with var "complete_link"
 
