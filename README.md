@@ -53,17 +53,8 @@ It is necessary to install python 3 and pip on the pc that will run the bot
 The following libraries are required for the script to function properly(pip):
 
 ```
-diskxo@main:~$ pip install urllib3 
-diskxo@main:~$ pip install regex
-diskxo@main:~$ pip install requests
-diskxo@main:~$ pip install youtube_dl
-diskxo@main:~$ pip install pytest-shutil
-diskxo@main:~$ pip install glob2
-diskxo@main:~$ pip install pyTelegramBotAPI
-diskxo@main:~$ pip install mutagen
-diskxo@main:~$ pip install lxml
-diskxo@main:~$ pip install python-telegram-bot
-diskxo@main:~$ pip install numpy
+diskxo@main:~$ pip install urllib3 regex requests youtube_dl pytest-shutil telebot glob2 pyTelegramBotAPI mutagen lxml python-telegram-bot numpy telebot 
+
 ```
 
 ## 🎈 Usage <a name="usage"></a>
