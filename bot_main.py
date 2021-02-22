@@ -141,8 +141,7 @@ def echo_message(message):
                     
             loadingmessage = bot.reply_to(message, '⚙️(30%) Download in corso...') # Print loading         
             messageid = loadingmessage.message_id
-            
-                    
+                               
             if (data[userid]["format"]) == "mp3":
                 ydl_opts = {
                 'format':"bestaudio/best",
@@ -175,9 +174,9 @@ def echo_message(message):
                     audio.save() # Save audio metadata
                     bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid)
                             
-                    audio = open(file_title + '.mp3', 'rb') # Open,send song & delete last message
-                    bot.delete_message(iduser, messageid)
+                    audio = open(file_title + '.mp3', 'rb') # Open,send song & delete last message                   
                     bot.send_audio(message.chat.id, audio)
+                    bot.delete_message(iduser, messageid)
                     
                     audio.close()       
                     os.remove(file_title + ".mp3") # Remove audio file
@@ -195,9 +194,10 @@ def echo_message(message):
                         
                     audio = open(newest_file, 'rb') #Send song
                     # Open,send song & delete last message
-                    bot.delete_message(iduser, messageid)
+                    
                     bot.send_audio(message.chat.id, audio)
-                                
+                    bot.delete_message(iduser, messageid)   
+                          
                     audio.close() # Close audio file
                     os.remove(newest_file) # Remove audio file
                     print("Last file: " + newest_file + " Deleted!\n") # Print removed file
@@ -222,9 +222,10 @@ def echo_message(message):
                         os.rename(r"" + newest_file ,r"" + file_title + '.mp4') #Rename the file with real music title
                             
                         video = open(file_title + '.mp4', 'rb') # Open,send song & delete last message
-                        bot.delete_message(iduser, messageid)
+                        
                         bot.send_video(message.chat.id, video)
-                                    
+                        bot.delete_message(iduser, messageid)      
+                           
                         video.close()
                         os.remove(file_title + '.mp4')
 
@@ -240,9 +241,10 @@ def echo_message(message):
                         bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid) # Details tg message
                             
                         audio = open(newest_file, 'rb')# Open,send song & delete last message
-                        bot.delete_message(iduser, messageid)
+                        
                         bot.send_audio(message.chat.id, audio)
-                                    
+                        bot.delete_message(iduser, messageid)   
+                               
                         audio.close() # Close audio file
                         os.remove(newest_file) # Remove audio file
                         print("Last file: " + newest_file + " Deleted!\n") # Print removed file
@@ -255,15 +257,17 @@ def echo_message(message):
                
     if directlink == True: # If user inserted                
         download(inputelement) # Download with var "directlink"
-
+        
+    
     if directlink == False:
-        if (data[userid]["basewebsite"]) == "yt":
-            #Get html page of youtube
-            html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
-            video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
-            complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
-        elif (data[iduser]["basewebsite"]) == "ytm":
 
+        if userid in data:
+            if 'yt' in data[userid]['basewebsite']:
+                #Get html page of youtube
+                html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
+                video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
+                complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
+        elif 'ytm' in data[userid]['basewebsite']:
             youtubemusic = ytm.YouTubeMusic()
             def song_url(song_id: str) -> str:
                 return ytm.utils.url_ytm('watch', params = {'v': song_id})
