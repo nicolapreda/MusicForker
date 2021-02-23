@@ -134,11 +134,7 @@ def echo_message(message):
     originalmessage = message.text # Load title of video from telegram message  
     
     def download(downloadlink): # Download function
-            
-            if downloadlink.startswith("https://music.youtube.com"):
-               downloadlink = downloadlink[:downloadlink.rfind("&list=")]
-               print(downloadlink)
-                    
+               
             loadingmessage = bot.reply_to(message, '⚙️(30%) Download in corso...') # Print loading         
             messageid = loadingmessage.message_id
                                
@@ -255,7 +251,12 @@ def echo_message(message):
     inputelement = originalmessage.replace(" ", "+") # Replace spaces with +   
     directlink = inputelement.startswith("https://") # Check if the input is a directlink
                
-    if directlink == True: # If user inserted                
+    if directlink == True: # If user inserted   
+        
+        if inputelement.startswith("https://music.youtube.com"):
+            inputelement = inputelement[:inputelement.rfind("&list=")]
+            print(inputelement)  
+                     
         download(inputelement) # Download with var "directlink"
         
     
@@ -263,21 +264,36 @@ def echo_message(message):
 
         if userid in data:
             if 'yt' in data[userid]['basewebsite']:
+                youtubemusic = ytm.YouTubeMusic()
+                def song_url(song_id: str) -> str:
+                    return ytm.utils.url_ytm('watch', params = {'v': song_id})
+                def search(query: str) -> str:
+                    return song_url(youtubemusic.search_songs(query)['items'][0]['id'])
+                complete_link = search(inputelement)
+                """
                 #Get html page of youtube
                 html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
                 video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
                 complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
-        elif 'ytm' in data[userid]['basewebsite']:
-            youtubemusic = ytm.YouTubeMusic()
-            def song_url(song_id: str) -> str:
-                return ytm.utils.url_ytm('watch', params = {'v': song_id})
-            def search(query: str) -> str:
-                return song_url(youtubemusic.search_songs(query)['items'][0]['id'])
-            complete_link = search(inputelement)
-            print(complete_link)
+                """
+            elif 'ytm' in data[userid]['basewebsite']:
+                youtubemusic = ytm.YouTubeMusic()
+                def song_url(song_id: str) -> str:
+                    return ytm.utils.url_ytm('watch', params = {'v': song_id})
+                def search(query: str) -> str:
+                    return song_url(youtubemusic.search_songs(query)['items'][0]['id'])
+                complete_link = search(inputelement)
+                print(complete_link)
             
-        bot.reply_to(message, '🚀 Corrispondenza migliore:\n' + complete_link) # Print the video/music link
-        download(complete_link) # Download with var "complete_link"
+            bot.reply_to(message, '🚀 Corrispondenza migliore:\n' + complete_link) # Print the video/music link
+            download(complete_link) # Download with var "complete_link"
+        else:
+            filename = 'users.json' 
+            userid = str(message.chat.id)
+            data[userid] = {'format' : 'mp3', 'basewebsite': 'ytm'} # Set default settings 
+            WritetoJSONFile('./',filename, data)
+            print("⚠️ Default config setting for the user: " + userid + " ⚠️") # Apply default download for user.
+
 
 print("Bot Online! 🚀")
 bot.polling()
