@@ -35,7 +35,7 @@ def send_welcome(message):
     
     print("⚠️ Default config setting for the user: " + userid + " ⚠️") # Apply default download for user.
     
-    bot.reply_to(message, "👋 Benvenuto nel bot! Ora tutti i contenuti che scaricherai saranno impostati di default con l'estensione .mp3\n🙋 Controlla /help per tutti i comandi a tua disposizione. \n✍️ Inserisci il nome o l'url del video da scaricare:")  # Start bot
+    bot.reply_to(message, "👋 Benvenuto nel bot! Ora tutti i contenuti che scaricherai saranno impostati di default con l'estensione .mp3\n🙋 Controlla /help per tutti i comandi a tua disposizione. \n ⚠️ Il bot non è attualmente in grado di scaricare playlist da Youtube e da Youtube music!\n✍️ Inserisci il nome o l'url del video da scaricare:")  # Start bot
 
 @bot.message_handler(commands=['help']) # Help commands
 def helpcommand(message):
@@ -129,16 +129,15 @@ def echo_message(message):
     except:
         bot.reply_to(message, "❌ Errore interno del bot (LoadJSON Failed) ❌")
         sys.exit()
-        os.system("python bot_main.py")
-    
+        os.system("python bot_main.py")  
     originalmessage = message.text # Load title of video from telegram message  
-    
+
+        
     def download(downloadlink): # Download function
                
             loadingmessage = bot.reply_to(message, '⚙️(30%) Download in corso...') # Print loading         
             messageid = loadingmessage.message_id
-                               
-            if (data[userid]["format"]) == "mp3":
+            if "mp3" in data[userid]['format']:
                 ydl_opts = {
                 'format':"bestaudio/best",
                         'postprocessors': [{
@@ -148,13 +147,15 @@ def echo_message(message):
                         }],
                     }
                 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                        
-                    ydl.download([downloadlink]) #Download the video
-                    meta = ydl.extract_info(downloadlink) # Extract link informations
-                        
-                    file_title = meta['title'] # Get file title
-                        
-                    file_author = meta['uploader'] # Get file author
+                    try:    
+                        ydl.download([downloadlink]) #Download the video
+                        meta = ydl.extract_info(downloadlink) # Extract link informations
+                            
+                        file_title = meta['title'] # Get file title
+                            
+                        file_author = meta['uploader'] # Get file author
+                    except:
+                        bot.reply_to(message,"❌ Errore nella")
                     bot.edit_message_text("⚙️(50%) Conversione e upload...",iduser, messageid)
                             
                 mp3_file = glob.glob("*.mp3")  #Consider only files with .mp3 extension
@@ -198,15 +199,15 @@ def echo_message(message):
                     os.remove(newest_file) # Remove audio file
                     print("Last file: " + newest_file + " Deleted!\n") # Print removed file
                      
-            elif (data[userid]["format"]) == "mp4":
+            elif "mp4" in data[userid]['format']:
                 try:
                     ydl_opts = {
                     'format': 'bestvideo[ext=m4a]+bestaudio/best'
                     }
                     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                         
-                        ydl.download([inputelement]) #Download the video
-                        meta = ydl.extract_info(inputelement)                       
+                        ydl.download([complete_link]) #Download the video
+                        meta = ydl.extract_info(complete_link)                       
                         file_title = meta['title'] #Get file title                        
                         file_author = meta['uploader'] #Get file author
                     try:            
@@ -234,7 +235,7 @@ def echo_message(message):
                         audio['title'] = file_title
                             
                         audio.save() # Save audio metadata
-                        bot.edit_message_text("⚙️(80%) Aggiungendo gli ultimi dettagli...",iduser, messageid) # Details tg message
+                        bot.edit_message_text("⚙️ (80%) Aggiungendo gli ultimi dettagli...",iduser, messageid) # Details tg message
                             
                         audio = open(newest_file, 'rb')# Open,send song & delete last message
                         
@@ -246,8 +247,7 @@ def echo_message(message):
                         print("Last file: " + newest_file + " Deleted!\n") # Print removed file
                 except: 
                     bot.edit_message_text("❌ Errore nel download del file video!",iduser, messageid) # Error message TG
-                    
-       
+                       
     inputelement = originalmessage.replace(" ", "+") # Replace spaces with +   
     directlink = inputelement.startswith("https://") # Check if the input is a directlink
                
@@ -256,27 +256,17 @@ def echo_message(message):
         if inputelement.startswith("https://music.youtube.com"):
             inputelement = inputelement[:inputelement.rfind("&list=")]
             print(inputelement)  
+            complete_link = inputelement
                      
-        download(inputelement) # Download with var "directlink"
+        download(complete_link) # Download with var "directlink"
         
     
     if directlink == False:
-
+        
+        
         if userid in data:
-            if 'yt' in data[userid]['basewebsite']:
-                youtubemusic = ytm.YouTubeMusic()
-                def song_url(song_id: str) -> str:
-                    return ytm.utils.url_ytm('watch', params = {'v': song_id})
-                def search(query: str) -> str:
-                    return song_url(youtubemusic.search_songs(query)['items'][0]['id'])
-                complete_link = search(inputelement)
-                """
-                #Get html page of youtube
-                html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
-                video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
-                complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
-                """
-            elif 'ytm' in data[userid]['basewebsite']:
+            if "ytm" in data[userid]['basewebsite']:
+
                 youtubemusic = ytm.YouTubeMusic()
                 def song_url(song_id: str) -> str:
                     return ytm.utils.url_ytm('watch', params = {'v': song_id})
@@ -284,16 +274,30 @@ def echo_message(message):
                     return song_url(youtubemusic.search_songs(query)['items'][0]['id'])
                 complete_link = search(inputelement)
                 print(complete_link)
+                
+            else: #"ytm" in data[userid]['basewebsite']
+                
+                try:#Get html page of youtube
+                    html = urllib.request.urlopen("https://www.youtube.com/results?search_query=" + inputelement) # Get the complete YT Link
+                    video_ids = re.findall(r"watch\?v=(\S{11})", html.read().decode()) # Scraping informations
+                    complete_link = "https://www.youtube.com/watch?v=" + video_ids[0]   # Get the complete YT link
+                except:
+                    print("❌ Error: Undefined link")
+                
+            try:
+                bot.reply_to(message, '🚀 Corrispondenza migliore:\n' + complete_link) # Print the video/music link   
+                download(complete_link) # Download with var "complete_link"
+            except:
+                print("❌ Error: Undefined link")
+                bot.reply_to(message,"❌ Il bot ha riscontrato un problema nella ricerca del link!\n Riprova evitando l'inserimento di caratteri speciali.")
             
-            bot.reply_to(message, '🚀 Corrispondenza migliore:\n' + complete_link) # Print the video/music link
-            download(complete_link) # Download with var "complete_link"
         else:
             filename = 'users.json' 
             userid = str(message.chat.id)
             data[userid] = {'format' : 'mp3', 'basewebsite': 'ytm'} # Set default settings 
             WritetoJSONFile('./',filename, data)
             print("⚠️ Default config setting for the user: " + userid + " ⚠️") # Apply default download for user.
-
+            bot.reply_to(message, "⚠️ Applicata la configurazione di default per il download della musica\nRiprova il download")  # Start bot
 
 print("Bot Online! 🚀")
 bot.polling()
