@@ -261,15 +261,14 @@ def echo_message(message):
                            
     inputelement = originalmessage.replace(" ", "+") # Replace spaces with +   
     directlink = inputelement.startswith("https://") # Check if the input is a directlink
-               
+	
     if directlink == True: # If user inserted   
         
         if inputelement.startswith("https://music.youtube.com"):
             inputelement = inputelement[:inputelement.rfind("&list=")]
-            print(inputelement)  
-            complete_link = inputelement
-                     
-        download(complete_link) # Download with var "directlink"
+                                
+        download(inputelement) # Download with var "directlink"           
+    
         
     
     if directlink == False:
