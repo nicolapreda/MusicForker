@@ -54,7 +54,7 @@ The following libraries are required for the script to function properly(pip):
 
 ```
 diskxo@main:~$ pip install urllib3 urllib2 regex requests youtube_dl pytest-shutil telebot glob2 pyTelegramBotAPI mutagen lxml python-telegram-bot numpy telebot 
-
+diskxo@main:~$ sudo apt-get install ffmpeg
 ```
 
 ## 🎈 Usage <a name="usage"></a>
